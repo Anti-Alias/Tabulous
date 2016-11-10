@@ -14,3 +14,4 @@ class TableSelection(val underlying:Table, columnIndices:Array[Int]) extends Tab
 	override def numRows:Int = underlying.numRows
 	override def apply(rowIndex:Int):Row = underlying.apply(rowIndex)
 }
+//
