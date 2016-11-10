@@ -8,10 +8,8 @@ package tabulous
 */
 class TableSelection(val underlying:Table, columnIndices:Array[Int]) extends Table
 {
-	override lazy val columns:Seq[String] = columnIndices
+	override val columns:Array[String] = columnIndices
 		.map{index => underlying.columns(index)}
-		.toSeq
 	override def numRows:Int = underlying.numRows
 	override def apply(rowIndex:Int):Row = underlying.apply(rowIndex)
 }
-//
