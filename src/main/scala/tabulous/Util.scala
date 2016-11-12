@@ -11,6 +11,7 @@ object Util
 	*/
 	implicit class AnyExtended(a:Any)
 	{
+		def toInt:Int = a.as[String].toInt
 		def as[T] = a.asInstanceOf[T]
 	}
 

@@ -6,7 +6,7 @@ package tabulous
 * @param underlying Table being viewed
 * @param columns Columns to include
 */
-class TableSelection(val underlying:Table, columnIndices:Array[Int]) extends Table
+class SelectionTable(val underlying:Table, columnIndices:Array[Int]) extends Table
 {
 	override val columns:Array[String] = columnIndices
 		.map{index => underlying.columns(index)}
@@ -18,7 +18,7 @@ class TableSelection(val underlying:Table, columnIndices:Array[Int]) extends Tab
 	*/
 	case class RowSelection(rowIndex: Int) extends Row
 	{
-		override def columns:Array[String] = TableSelection.this.columns
+		override def columns:Array[String] = SelectionTable.this.columns
 		override def apply(columnIndex:Int):Any = underlying(rowIndex, columnIndices(columnIndex))
 	}
 }
