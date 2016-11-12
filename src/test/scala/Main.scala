@@ -1,6 +1,4 @@
 import tabulous._
-import tabulous.Util._
-import scala.collection.immutable._
 
 object Main extends App
 {
