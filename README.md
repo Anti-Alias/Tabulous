@@ -18,8 +18,8 @@ object Main extends App
 		.select("lname", "id")
 		.where{row => row("lname") == "henryton"}   // .filter() is also acceptable
 
-  // Displays results
-	println(queried)
+    // Displays results
+    println(queried)
 }
 ```
 
