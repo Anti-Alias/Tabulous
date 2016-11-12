@@ -1,4 +1,5 @@
 package tabulous
+import scala.collection.immutable._
 
 
 /**
@@ -12,6 +13,7 @@ private[tabulous] class SelectionTable(val underlying:Table, columnIndices:Array
 		.map{index => underlying.columns(index)}
 	override def numRows:Int = underlying.numRows
 	override def apply(rowIndex:Int):Row = RowSelection(rowIndex)
+	override def apply(rowIndex:Int, columnIndex:Int):Any = underlying(rowIndex, columnIndices(columnIndex))
 
 	/**
 	* Implementation of Row for this class

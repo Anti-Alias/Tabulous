@@ -1,4 +1,5 @@
 package tabulous
+import scala.collection.immutable._
 
 
 /**
@@ -10,4 +11,5 @@ private[tabulous] case class FilterTable(underlying:Table, rowIndices:Seq[Int]) 
 	override def columns:Array[String] = underlying.columns
 	override def numRows:Int = rowIndices.length
 	override def apply(rowIndex:Int):Row = underlying.apply(rowIndices(rowIndex))
+	override def apply(rowIndex:Int, columnIndex:Int):Any = underlying.apply(rowIndices(rowIndex), columnIndex)
 }

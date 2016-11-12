@@ -1,4 +1,5 @@
 package tabulous
+import scala.collection.immutable._
 
 
 /**
@@ -13,7 +14,7 @@ case class ArrayTable(override val columns:Array[String], data:Array[Any]) exten
 	// ----------- OVERRIDDEN -------------
 	override val numRows:Int = data.length/columns.length
 	override def apply(rowIndex:Int):Row = DataRow(rowIndex)
-	override def apply(rowIndex:Int, columnIndex:Int):Any = rowIndex*numColumns + columnIndex
+	override def apply(rowIndex:Int, columnIndex:Int):Any = data(rowIndex*numColumns + columnIndex)
 
 
 	/**

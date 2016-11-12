@@ -4,6 +4,7 @@ import Util._
 import scala.io.{Source}
 import java.io.{File}
 import java.net.{URL}
+import scala.collection.immutable._
 
 
 /**
@@ -41,7 +42,7 @@ trait Table extends Traversable[Row]
 	/**
 	* Acquires an element in the Table
 	*/
-	def apply(rowIndex:Int, columnIndex:Int):Any = apply(rowIndex).apply(columnIndex)
+	def apply(rowIndex:Int, columnIndex:Int):Any = apply(rowIndex)(columnIndex)
 
 
 	/**
@@ -50,7 +51,7 @@ trait Table extends Traversable[Row]
 	def select(columnNames:String*):Table =
 	{
 		// Determines indices to select, and validates them
-		val indices:Seq[Int] = columnNames.map{name => columns.indexOf(name)}
+		val indices:scala.collection.Seq[Int] = columnNames.map{name => columns.indexOf(name)}
 		for(i <- 0 until indices.length)
 		{
 			if(indices(i) == -1)
@@ -59,6 +60,16 @@ trait Table extends Traversable[Row]
 
 		// Returns result
 		selecti(indices:_*)
+	}
+
+
+	/**
+	* @return selection of the given column indices.
+	*/
+	def selecti(columnIndices: Int*):Table =
+	{
+		require(columnIndices.forall{index => index>=0 && index<numColumns}, "Column index was out of bounds.")
+		new SelectionTable(this, columnIndices.toArray)
 	}
 
 
@@ -83,13 +94,22 @@ trait Table extends Traversable[Row]
 
 
 	/**
-	* @return selection of the given column indices.
+	* This is similar to scala's map method, except the resulting type
+	* must be a Row in a Table.  This is to ensure the operation results
+	* in another Table.
+	* @param func Function to convert Rows in this Table.
+	* @return Table such that its Rows are converted.
 	*/
-	def selecti(columnIndices: Int*):Table =
-	{
-		require(columnIndices.forall{index => index>=0 && index<numColumns}, "Column index was out of bounds.")
-		new SelectionTable(this, columnIndices.toArray)
-	}
+	def convert(func:Row=>Row):Table = MapTable(this, func)
+
+
+	/**
+	* Forces all mutations, filters, selections, etc to
+	* aggregate to a completely new compiled table.
+	* This prevents the problem that occurs when too many Table
+	* views pile up.
+	*/
+	def compile:Table = Table.copy(this)
 
 
 	/**
@@ -137,7 +157,7 @@ trait Table extends Traversable[Row]
 /**
 * Represents an immutable row in a Table.
 */
-trait Row
+trait Row extends Traversable[Any]
 {
 	// -------- ABSTRACT -----------
 	/**
@@ -169,6 +189,9 @@ trait Row
 	def numColumns:Int = columns.length
 
 
+	override def foreach[U](f:Any=>U):Unit = (0 until numColumns) foreach {elem => f(elem)}
+
+
 	/**
 	* @return string representation of this Row
 	* @param colWidth Number of characters each column should be.
@@ -180,6 +203,8 @@ trait Row
 		.map {any => pad(any.toString, colWidth)}	// To paddes Strings
 		.mkString("")								// Joined as a single String
 	override def toString:String = toString(20)
+
+
 }
 
 
@@ -202,5 +227,16 @@ object Table
 			.flatMap{_.split(",")}
 			.toArray
 		ArrayTable(columns, data.as[Array[Any]])
+	}
+
+
+	/**
+	* Copies a Table.
+	*/
+	def copy(table:Table):Table =
+	{
+		val columns:Array[String] = table.columns
+		val data:Array[Any] = table.flatMap{_.toSeq}.toArray
+		ArrayTable(columns, data)
 	}
 }
