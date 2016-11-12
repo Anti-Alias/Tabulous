@@ -1,6 +1,6 @@
 package tabulous
 import tabulous.exception._
-import StringHelper._
+import Util._
 
 
 /**
@@ -69,13 +69,14 @@ trait Table extends Traversable[Row]
 	/**
 	* Stringifies this Table.
 	*/
-	override def toString(colWidth:Int):String =
+	def toString(colWidth:Int):String =
 	{
 		val builder = new StringBuilder()
 		for(name:String <- columns) builder.append(pad(name, colWidth))
 		for(row:Row <- this) builder.append(row.toString(colWidth))
 		builder.toString
 	}
+	override def toString:String = toString(20)
 }
 
 
@@ -84,15 +85,47 @@ trait Table extends Traversable[Row]
 */
 trait Row
 {
-	def apply(i:Int):Any
+	// -------- ABSTRACT -----------
+	/**
+	* Accesses an element in the Row by column index
+	*/
+	def apply(columnIndex:Int):Any
+
+	/**
+	* Names of columns.  This is usually accessed
+	* by the containing Table.
+	*/
 	def columns:Array[String]
 
+	/**
+	* Number of columns in the Row.
+	*/
+	def numColumns:Int = columns.length
+
+
+	// --------- IMPLEMENTED ----------
+	/**
+	* Acceses an elemlent in the Row by column name.
+	*/
 	def apply(columnName:String):Any =
 	{
 		val index:Int = columns.indexOf(columnName)
 		if(index != -1) apply(index)
 		else throw InvalidColumnNameException(columnName)
 	}
+
+
+	/**
+	* @return string representation of this Row
+	* @param colWidth Number of characters each column should be.
+	* columns that are too long will be truncated, while those too short
+	* will be padded with spaces.
+	*/
+	def toString(colWidth:Int):String = (0 until numColumns)
+		.map {columnIndex => apply(columnIndex)}	// To Anys
+		.map {any => "|"+pad(any.toString, 20)}		// To paddes Strings
+		.mkString(" ")								// Joined as a single String.
+	override def toString:String = toString(20)
 }
 
 
