@@ -1,5 +1,4 @@
 package tabulous
-import exception._
 import Util._
 import scala.io.{Source}
 import java.io.{File}
