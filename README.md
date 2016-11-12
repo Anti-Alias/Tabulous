@@ -20,7 +20,8 @@ object Main extends App
 
   // Displays results
 	println(queried)
-}```
+}
+```
 
 
 ### Example of Row access:
