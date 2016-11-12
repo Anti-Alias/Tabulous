@@ -6,7 +6,7 @@ package tabulous
 * @param underlying Table being viewed
 * @param columns Columns to include
 */
-class SelectionTable(val underlying:Table, columnIndices:Array[Int]) extends Table
+private[tabulous] class SelectionTable(val underlying:Table, columnIndices:Array[Int]) extends Table
 {
 	override val columns:Array[String] = columnIndices
 		.map{index => underlying.columns(index)}

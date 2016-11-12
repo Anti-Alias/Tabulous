@@ -176,9 +176,9 @@ trait Row
 	* will be padded with spaces.
 	*/
 	def toString(colWidth:Int):String = (0 until numColumns)
-		.map {columnIndex => apply(columnIndex)}		// To Anys
+		.map {columnIndex => apply(columnIndex)}	// To Anys
 		.map {any => pad(any.toString, colWidth)}	// To paddes Strings
-		.mkString("")									// Joined as a single String
+		.mkString("")								// Joined as a single String
 	override def toString:String = toString(20)
 }
 
@@ -201,6 +201,6 @@ object Table
 		val data:Array[String] = lines
 			.flatMap{_.split(",")}
 			.toArray
-		DataTable(columns, data.as[Array[Any]])
+		ArrayTable(columns, data.as[Array[Any]])
 	}
 }
