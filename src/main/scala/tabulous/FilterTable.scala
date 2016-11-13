@@ -1,5 +1,4 @@
 package tabulous
-import scala.collection.immutable._
 
 
 /**

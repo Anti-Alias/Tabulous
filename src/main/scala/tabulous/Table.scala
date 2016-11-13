@@ -3,7 +3,6 @@ import Util._
 import scala.io.{Source}
 import java.io.{File}
 import java.net.{URL}
-import scala.collection.immutable._
 
 
 /**
@@ -93,13 +92,60 @@ trait Table extends Traversable[Row]
 
 
 	/**
-	* This is similar to scala's map method, except the resulting type
-	* must be a Row in a Table.  This is to ensure the operation results
-	* in another Table.
-	* @param func Function to convert Rows in this Table.
-	* @return Table such that its Rows are converted.
+	* This applies transformations to this Table.
+	* @param transformations Column indices
+	* and the functions to apply to their corresponding columns.
 	*/
-	def convert(func:Row=>Row):Table = MapTable(this, func)
+	def transformi(transformations:Map[Int, Any=>Any]):Table =
+	{
+		// Converts transformations Map into an Array of transformations.
+		// Keys that do not exist evaluate to the default function which
+		// simply returns the original value.
+		val defaultFunc:Any=>Any = (any)=>any
+		val funcs:Array[Any=>Any] = (0 until columns.length)
+			.map {columnIndex => transformations.getOrElse(columnIndex, defaultFunc)}
+			.toArray
+
+		// Builds the final transformation function.
+		val transformFunc:Row=>Row = (row)=>
+		{
+			// Gets keys and values for this row
+			val columns:Array[String] = row.columns
+			val data:Array[Any] = row.dataArray
+
+			// Trasforms existing data
+			var i:Int = 0
+			while(i < data.length)
+			{
+				val oldElem:Any = data(i)
+				val newElem:Any = funcs(i)(oldElem)
+				data(i) = newElem
+				i += 1
+			}
+
+			// Returns Row generated
+			FreeRow(columns, data)			
+		}
+
+		// Returns Table view that transforms its rows on the fly.
+		MapTable(this, transformFunc)
+	}
+
+
+	/**
+	* This applies transformations to this Table.
+	* @param transformations Column names
+	* and the functions to apply to their corresponding columns.
+	*/
+	def transform(transformations:Map[String, Any=>Any]):Table =
+	{
+		// Converts from a Mapping of String to any functions to Int to any functions.
+		val indices:Map[Int, Any=>Any] = transformations
+			.map{ elem:(String, Any=>Any) => (columns.indexOf(elem._1), elem._2) }
+
+		// Invokes the index version
+		transformi(indices)
+	}
 
 
 	/**
@@ -150,60 +196,6 @@ trait Table extends Traversable[Row]
 			.foldLeft(0) {(a:Int, b:Int) => if(a>b) a else b}
 		toString(10)
 	}
-}
-
-
-/**
-* Represents an immutable row in a Table.
-*/
-trait Row extends Traversable[Any]
-{
-	// -------- ABSTRACT -----------
-	/**
-	* Accesses an element in the Row by column index
-	*/
-	def apply(columnIndex:Int):Any
-
-	/**
-	* Names of columns.  This is usually accessed
-	* by the containing Table.
-	*/
-	def columns:Array[String]
-
-
-	// --------- IMPLEMENTED ----------
-	/**
-	* Acceses an elemlent in the Row by column name.
-	*/
-	def apply(columnName:String):Any =
-	{
-		val index:Int = columns.indexOf(columnName)
-		if(index != -1) apply(index)
-		else throw InvalidColumnNameException(columnName)
-	}
-
-	/**
-	* Number of columns in the Row.
-	*/
-	def numColumns:Int = columns.length
-
-
-	override def foreach[U](f:Any=>U):Unit = (0 until numColumns) foreach {elem => f(elem)}
-
-
-	/**
-	* @return string representation of this Row
-	* @param colWidth Number of characters each column should be.
-	* columns that are too long will be truncated, while those too short
-	* will be padded with spaces.
-	*/
-	def toString(colWidth:Int):String = (0 until numColumns)
-		.map {columnIndex => apply(columnIndex)}	// To Anys
-		.map {any => pad(any.toString, colWidth)}	// To paddes Strings
-		.mkString("")								// Joined as a single String
-	override def toString:String = toString(20)
-
-
 }
 
 
