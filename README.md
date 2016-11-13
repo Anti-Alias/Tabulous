@@ -9,7 +9,7 @@ import tabulous._
 object Main extends App
 {
   // Creates a table from a file, and prints out its contents
-	val table:Table = Table.fromFile("TestTable.csv")
+  val table:Table = Table.fromFile("TestTable.csv")
 
   // Selects only last name and id from table
   // and only considers the lines at which
@@ -43,4 +43,4 @@ object Main extends App
 ```
 
 ### Disclaimer:
-Every time you invoke a transformative method like .select, .filter and .convert, you are creating a view of the Table.  This is more efficient in most cases since the transformations are computed on the fly rather than at once.  The downside is that the views can end up aggregating.  Performance will likely degrade on a table that is too many views deep.  For this reason, if you intend to use a particular multiple times, be sure to invoke .compile on it.
+Every time you invoke a transformative method like .select, .filter, .convert and .transform, you are creating a view of the Table.  This is more efficient in most cases since the transformations are computed on the fly rather than at once.  The downside is that the views can end up aggregating.  Performance will likely degrade on a table that is too many views deep.  For this reason, if you intend to use a particular table multiple times, be sure to invoke .compile on it.
