@@ -242,6 +242,29 @@ object Table
 
 
 	/**
+	* Constructs from data.
+	* @param columns Columns names in the Table.
+	* @param data All data in the Table as a flat Seq.  Length of data should
+	* be divisible by the number of columns.
+	*/
+	def fromFlatData(columns:Seq[String], data:Seq[Any]):Table = ArrayTable(columns.toArray, data.toArray)
+	
+
+	/**
+	* Constructs from data.
+	* @param columns Columns names in the Table.
+	* @param data All data in the Table as a jagged Seq.  Length of every row should be
+	* equal to the number of columns.
+	*/
+	def fromData(columns:Seq[String], data:Seq[Seq[Any]]):Table =
+	{
+		// Validates row length
+		require(data.forall{seq => seq.length == columns.length}, "Length of one Row is not the same as the number of columns.")
+		fromFlatData(columns, data.flatten)
+	}
+
+
+	/**
 	* Copies a Table.
 	*/
 	def copy(table:Table):Table =
