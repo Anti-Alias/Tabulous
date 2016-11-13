@@ -1,10 +1,7 @@
-package tabulous
-
-
 /**
-* Holds implicit methods for casting Any type.
+* Holds useful implicits for the library
 */
-object Util
+package object tabulous
 {
 	/**
 	* Implicit class used to make casting easier.

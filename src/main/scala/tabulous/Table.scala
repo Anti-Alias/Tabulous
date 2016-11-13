@@ -1,5 +1,4 @@
 package tabulous
-import Util._
 import scala.io.{Source}
 import java.io.{File}
 import java.net.{URL}
@@ -92,11 +91,9 @@ trait Table extends Traversable[Row]
 
 
 	/**
-	* This applies transformations to this Table.
-	* @param transformations Column indices
-	* and the functions to apply to their corresponding columns.
+	* Unsafe version of transform method.
 	*/
-	def transformi(transformations:Map[Int, Any=>Any]):Table =
+	private def _transformi(transformations:Map[Int, Any=>Any]):Table =
 	{
 		// Converts transformations Map into an Array of transformations.
 		// Keys that do not exist evaluate to the default function which
@@ -132,6 +129,23 @@ trait Table extends Traversable[Row]
 	}
 
 
+
+	/**
+	* This applies transformations to this Table.
+	* @param transformations Column indices
+	* and the functions to apply to their corresponding columns.
+	*/
+	def transformi(transformations:Map[Int, Any=>Any]):Table =
+	{
+		// Checks column indices
+		val indices:Iterable[Int] = transformations.keys
+		require(indices.forall{index => index >= 0 && index < numColumns}, s"A column specified did not exist")
+
+		// Invokes real code
+		_transformi(transformations)
+	}
+
+
 	/**
 	* This applies transformations to this Table.
 	* @param transformations Column names
@@ -139,12 +153,18 @@ trait Table extends Traversable[Row]
 	*/
 	def transform(transformations:Map[String, Any=>Any]):Table =
 	{
+		// Validates column names
+		val tcolumns:Iterable[String] = transformations.keys
+		for(column:String <- tcolumns)
+			if(!columns.contains(column))
+				throw InvalidColumnNameException(column)
+
 		// Converts from a Mapping of String to any functions to Int to any functions.
 		val indices:Map[Int, Any=>Any] = transformations
 			.map{ elem:(String, Any=>Any) => (columns.indexOf(elem._1), elem._2) }
 
 		// Invokes the index version
-		transformi(indices)
+		_transformi(indices)
 	}
 
 

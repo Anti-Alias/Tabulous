@@ -1,5 +1,4 @@
 import tabulous._
-import tabulous.Util._
 
 object Main extends App
 {
@@ -16,14 +15,14 @@ object Main extends App
 
 	// Puts them together.
 	val transformations:Map[String, Any=>Any] = Map(
-		"lname" -> uppercaseFunc,
+		"fname" -> uppercaseFunc,
 		"id" -> add4Func.andThen(sqrtFunc)
 	)
 
 	// Transforms table
 	val transformed:Table = table
-		.select("lname", "id")
-		.where{row => row("lname") == "henryton"}
+		.select("fname", "id")
+		.where{row => row("fname") == "henry"}
 		.transform(transformations)
 	
 	// Outputs new table
