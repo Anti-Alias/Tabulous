@@ -22,7 +22,7 @@ object Main extends App
 	// Transforms table
 	val transformed:Table = table
 		.select("fname", "id")
-		.where{row => row("fname") == "henry"}
+		.where{row => row("fname") == "Henry"}
 		.transform(transformations)
 	
 	// Outputs new table

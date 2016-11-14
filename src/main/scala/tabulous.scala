@@ -17,7 +17,7 @@ package object tabulous
 		def parseShort = a.toString.toShort
 		def parseBoolean = a.toString.toBoolean
 		def parseLong = a.toString.toLong
-		
+
 		// Casters
 		def as[T] = a.asInstanceOf[T]
 		def asDouble = a.asInstanceOf[Double]
