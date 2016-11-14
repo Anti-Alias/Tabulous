@@ -14,7 +14,7 @@ object Main extends App
   // Selects only last name and id from table
   // and only considers the lines at which
   // the last name is henryton
-	val queried:Table = table
+  val queried:Table = table
 		.select("lname", "id")
 		.where{row => row("lname") == "henryton"}   // .filter() is also acceptable
 
@@ -27,7 +27,6 @@ object Main extends App
 ### Example of Row access:
 ```scala
 import tabulous._
-import tabulous.Util._    // Used for implicit casting/conversion.
 
 object Main extends App
 {
