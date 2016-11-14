@@ -4,13 +4,9 @@ package tabulous
 /**
 * Represents an immutable row in a Table.
 */
-trait Row extends Traversable[Any]
+trait Row extends Seq[Any]
 {
 	// -------- ABSTRACT -----------
-	/**
-	* Accesses an element in the Row by column index
-	*/
-	def apply(columnIndex:Int):Any
 
 	/**
 	* Names of columns.  This is usually accessed
@@ -27,6 +23,20 @@ trait Row extends Traversable[Any]
 
 
 	// --------- IMPLEMENTED ----------
+	override def iterator = new Iterator[Any]
+	{
+		var columnIndex:Int = 0
+		override def hasNext:Boolean = columnIndex < numColumns
+		override def next:Any =
+		{
+			val result:Any = apply(columnIndex)
+			columnIndex += 1
+			result
+		}
+	}
+	override def length:Int = numColumns
+	override def size:Int = numColumns
+
 	/**
 	* Acceses an elemlent in the Row by column name.
 	*/
@@ -46,18 +56,26 @@ trait Row extends Traversable[Any]
 	/**
 	* Used for iterating through each element in the Row
 	*/
-	override def foreach[U](f:Any=>U):Unit = (0 until numColumns) foreach {elem => f(elem)}
+	override def foreach[U](f:Any=>U):Unit = (0 until numColumns) foreach {index => f(apply(index))}
 
 
 	/**
 	* @return string representation of this Row
-	* @param colWidth Number of characters each column should be.
 	* columns that are too long will be truncated, while those too short
 	* will be padded with spaces.
 	*/
-	def toString(colWidth:Int):String = (0 until numColumns)
-		.map {columnIndex => apply(columnIndex)}	// To Anys
-		.map {any => pad(any.toString, colWidth)}	// To paddes Strings
-		.mkString("")								// Joined as a single String
-	override def toString:String = toString(20)
+	def toString(columnWidths:Seq[Int]):String =
+	{
+		val asStrings:Seq[String] = this
+			.zipWithIndex
+			.map{elem:(Any, Int) =>
+				val len:Int = columnWidths(elem._2)
+				pad(elem._1.toString + ", ", len+2)
+			}
+		asStrings.mkString("")
+	}
+
+	override def toString:String = this
+		.map{any => any.toString}
+		.mkString("")
 }

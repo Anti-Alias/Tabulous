@@ -7,7 +7,7 @@ import java.net.{URL}
 /**
 * Abstract representation of an immutable Table.
 */
-trait Table extends Traversable[Row]
+trait Table extends scala.collection.immutable.Seq[Row]
 {
 	// ---------- ABSTRACT ------------
 	/**
@@ -21,15 +21,21 @@ trait Table extends Traversable[Row]
 	def numRows:Int
 
 
-	/**
-	* Acquires a row by number
-	*/
-	def apply(rowIndex:Int):Row
-
-
 
 	// ----------- DEFINED --------------
 	override def size:Int = numRows
+	override def length:Int = numRows
+	override def iterator = new Iterator[Row]
+	{
+		var rowIndex:Int = 0
+		override def hasNext:Boolean = rowIndex < numRows
+		override def next:Row =
+		{
+			val nextRow:Row = apply(rowIndex)
+			rowIndex += 1
+			nextRow
+		}
+	}
 
 	/**
 	* Number of columns in the Table
@@ -40,7 +46,6 @@ trait Table extends Traversable[Row]
 	* Acquires an element in the Table
 	*/
 	def apply(rowIndex:Int, columnIndex:Int):Any = apply(rowIndex)(columnIndex)
-
 
 	/**
 	* @return selection of the given columns.
@@ -58,7 +63,6 @@ trait Table extends Traversable[Row]
 		// Returns result
 		selecti(indices:_*)
 	}
-
 
 	/**
 	* @return selection of the given column indices.
@@ -88,6 +92,12 @@ trait Table extends Traversable[Row]
 	* satisifies the predicate 
 	*/
 	def where(p:Row=>Boolean):Table = filter(p)
+
+
+	/**
+	* @return region of the Table specified.
+	*/
+	def region(start:Int, count:Int):Table = RegionTable(this, start, count)
 
 
 	/**
@@ -168,6 +178,9 @@ trait Table extends Traversable[Row]
 	}
 
 
+	override def sortWith(p:(Row, Row)=>Boolean):Table = null
+
+
 	/**
 	* Forces all mutations, filters, selections, etc to
 	* aggregate to a completely new compiled table.
@@ -184,16 +197,21 @@ trait Table extends Traversable[Row]
 
 
 	/**
-	* Stringifies this Table.
+	* @return String representation of this Table.
 	*/
-	def toString(colWidth:Int):String =
+	override def toString:String =
 	{
-		// Creates StringBuilder
-		val builder = new StringBuilder()
-
+		// Gets widths of each column
+		val columnWidths:Seq[Int] = calcColumnWidths
+		
 		// Appends legend.
-		for(name:String <- columns)
-			builder.append(pad(name, colWidth))
+		val builder = new StringBuilder()
+		for(columnIndex:Int <- 0 until numColumns)
+		{
+			val name:String = columns(columnIndex)
+			val colWidth:Int = columnWidths(columnIndex)
+			builder.append(pad(name+", ", colWidth+2))
+		}
 		builder.append('\n')
 
 		// Appends separator
@@ -203,18 +221,34 @@ trait Table extends Traversable[Row]
 
 		// Appends rows
 		for(row:Row <- this) builder
-			.append(row.toString(colWidth))
+			.append(row.toString(columnWidths))
 			.append('\n')
 
 		// Returns result
 		builder.toString
 	}
-	override def toString:String =
+
+
+	/**
+	* Width of each column as a String.
+	*/
+	private def calcColumnWidths:Seq[Int] = (0 until numColumns) map {widthOfColumn}
+
+	/**
+	* With of String representation of a given column.
+	*/
+	private def widthOfColumn(columnIndex:Int):Int =
 	{
-		val maxNameLen:Int = columns
-			.map{_.length}
-			.foldLeft(0) {(a:Int, b:Int) => if(a>b) a else b}
-		toString(10)
+		// Gets all Anys in column
+		val anys:Seq[Any] = (0 until numRows) map {rowIndex => apply(rowIndex, columnIndex)}
+		
+		// Finds longest String		
+		val anyLen:Int = anys
+			.map{any => any.toString.length}
+			.max
+		
+		// Returns with result		
+		math.max(anyLen, columns(columnIndex).toString.length)
 	}
 }
 
