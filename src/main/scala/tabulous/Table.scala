@@ -47,6 +47,12 @@ trait Table extends scala.collection.immutable.Seq[Row]
 	*/
 	def apply(rowIndex:Int, columnIndex:Int):Any = apply(rowIndex)(columnIndex)
 
+
+	/**
+	* Acquires an element in the Table
+	*/
+	def apply(rowIndex:Int, column:String):Any = apply(rowIndex)(column)
+
 	/**
 	* @return selection of the given columns.
 	*/
@@ -131,7 +137,7 @@ trait Table extends scala.collection.immutable.Seq[Row]
 			}
 
 			// Returns Row generated
-			FreeRow(columns, data)			
+			FreeRow(columns, data)	
 		}
 
 		// Returns Table view that transforms its rows on the fly.
@@ -175,6 +181,41 @@ trait Table extends scala.collection.immutable.Seq[Row]
 
 		// Invokes the index version
 		_transformi(indices)
+	}
+
+
+	/**
+	* @return This table such that
+	* the existing column names are replaced with new ones.
+	*/
+	def renamei(newNames:String*):Table = RenamedTable(this, newNames.toArray)
+
+
+	/**
+	* @param replacement column names.  Those not specified
+	* will default to their original.
+	* @return Table with replaced column names.
+	*/
+	def rename(replacements:(String,String)*):Table =
+	{
+		// Validates column names
+		for(entry <- replacements)
+		{
+			if(!columns.contains(entry._1))
+				throw new InvalidColumnNameException(entry._1)
+		}
+
+		// Gets all indices of replacements.
+		val rIndices:Seq[(Int, String)] = replacements
+			.map {entry => (columns.indexOf(entry._1), entry._2)}
+
+		// Allocates array
+		var newNames:Array[String] = columns.clone
+		for(entry <- rIndices)
+			newNames(entry._1) = entry._2
+
+		// Invokes rename
+		renamei(newNames:_*)
 	}
 
 
