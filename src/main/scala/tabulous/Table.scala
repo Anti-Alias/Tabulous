@@ -211,7 +211,12 @@ trait Table extends scala.collection.immutable.Seq[Row]
 	* @return This table such that
 	* the existing column names are replaced with new ones.
 	*/
-	def renamei(newNames:String*):Table = RenamedTable(this, newNames.toArray)
+	def renamei(newNames:String*):Table =
+	{
+		require(newNames.length == numColumns, s"Found ${newNames.length} column name(s) when renaming Table.  Required $numColumns")
+		require(newNames.distinct == newNames, "Duplicate column names found when trying to rename Table")
+		RenamedTable(this, newNames.toArray)
+	}
 
 
 	/**
