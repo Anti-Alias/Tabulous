@@ -14,6 +14,8 @@ trait Row extends Seq[Any]
 	*/
 	def columns:Array[String]
 
+
+	// --------- IMPLEMENTED ----------
 	/**
 	* Converts all data in columns to an array of their data.
 	*/
@@ -21,8 +23,6 @@ trait Row extends Seq[Any]
 		.map{columnIndex => apply(columnIndex)}
 		.toArray
 
-
-	// --------- IMPLEMENTED ----------
 	override def iterator = new Iterator[Any]
 	{
 		var columnIndex:Int = 0

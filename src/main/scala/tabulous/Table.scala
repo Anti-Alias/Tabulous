@@ -248,11 +248,24 @@ trait Table extends scala.collection.immutable.Seq[Row]
 	*/
 	def join(that:Table, column:String):Table =
 	{
-		// Validates column name
+		// Validates column name on both Tables
 		checkColumn(column)
 		that.checkColumn(column)
 
-		null
+		// Determines rows that need to join
+		val joins:Seq[(Int, Int)] = for
+		{
+			rowIndex:Int <- 0 until numRows
+		}
+		yield
+		{
+			val row:Row = apply(rowIndex)
+			val thatRowIndex:Int = that.indexWhere{thatRow:Row => thatRow(column) == row(column)}
+			(rowIndex, thatRowIndex)
+		}
+
+		// Returns JoinedTable
+		JoinedTable(this, that.without(column), joins)
 	}
 
 
