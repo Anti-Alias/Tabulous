@@ -258,7 +258,7 @@ trait Table extends scala.collection.immutable.Seq[Row]
 		that.checkColumn(column)
 
 		// Determines rows that need to join
-		val joins:Seq[(Int, Int)] = for
+		val joins:Seq[Int] = for
 		{
 			rowIndex:Int <- 0 until numRows
 		}
@@ -266,7 +266,8 @@ trait Table extends scala.collection.immutable.Seq[Row]
 		{
 			val row:Row = apply(rowIndex)
 			val thatRowIndex:Int = that.indexWhere{thatRow:Row => thatRow(column) == row(column)}
-			(rowIndex, thatRowIndex)
+			println(rowIndex, thatRowIndex)
+			thatRowIndex
 		}
 
 		// Returns JoinedTable

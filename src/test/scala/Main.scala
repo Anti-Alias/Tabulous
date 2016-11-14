@@ -7,8 +7,8 @@ object Main extends App
 	val spouse:Table = Table.fromFile("spouse.csv")
 
 	// Joins tables
-	val join:Table = person
-		.join(spouse, "pid")
+	val join:Table = spouse
+		.join(person, "pid")
 		.compile
 
 	// Outputs tables
