@@ -45,7 +45,7 @@ object Main extends App
 
 
 ### Example of transformations:
-Since the data in Tables loaded from Files are always Strings, you might want to it to the appropriate type.  For instance, if one column in a Table represents the id of a person, it wouldn't make too much sense to have each id be stored as a String.  It would make more sense for it to be an Int.  While tricky, casting entries to their appropriate runtime type is possible.  Transformations don't only have to be done for the sake of casting.  It can also be done to do things like force String entries to be either lower case or upper case.  Doubles can have sqrt() applied to them.  The sky is the limit.
+Since the data in Tables loaded from Files are always Strings, you might want convert to it to the appropriate type.  For instance, if one column in a Table represents the id of a person, it wouldn't make too much sense to have each id be stored as a String.  It would make more sense for it to be an Int.  While tricky, casting entries to their appropriate runtime type is possible.  Transformations don't only have to be done for the sake of casting.  It can also be done to do things like force String entries to be either lower case or upper case.  Doubles can have sqrt() applied to them.  The sky is the limit.
 
 ```scala
 import tabulous._
