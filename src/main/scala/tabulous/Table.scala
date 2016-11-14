@@ -79,6 +79,28 @@ trait Table extends scala.collection.immutable.Seq[Row]
 		new SelectionTable(this, columnIndices.toArray)
 	}
 
+	/**
+	* @return Table such that the columns excluding the ones specified
+	* are selected.
+	*/
+	def withouti(columnIndices: Int*):Table =
+	{
+		val selected:Seq[Int] = (0 until numColumns) filterNot{columnIndices.contains}
+		selecti(selected:_*)
+	}
+
+
+	/**
+	* @return Table such that the columns excluding the ones specified
+	* are selected.
+	*/
+	def without(columns: String*):Table =
+	{
+		checkColumns(columns)
+		val indices:Seq[Int] = columns map {column => columns.indexOf(column)}
+		withouti(indices:_*)
+	}
+
 
 	/**
 	* @param p Predicate Rows must satisfy.
@@ -185,6 +207,7 @@ trait Table extends scala.collection.immutable.Seq[Row]
 
 
 	/**
+	* @param newNames New Seq of column names to replace the old ones.
 	* @return This table such that
 	* the existing column names are replaced with new ones.
 	*/
@@ -192,7 +215,8 @@ trait Table extends scala.collection.immutable.Seq[Row]
 
 
 	/**
-	* @param replacement column names.  Those not specified
+	* @param replacements Vararg of tuples representing coumn name replacements.
+	* Those not specified
 	* will default to their original.
 	* @return Table with replaced column names.
 	*/
@@ -219,7 +243,30 @@ trait Table extends scala.collection.immutable.Seq[Row]
 	}
 
 
-	override def sortWith(p:(Row, Row)=>Boolean):Table = null
+	/**
+	* Joins this Table with another on the specified column.
+	*/
+	def join(that:Table, column:String):Table =
+	{
+		// Validates column name
+		checkColumn(column)
+		that.checkColumn(column)
+
+		null
+	}
+
+
+	/**
+	* Sorts Rows in this Table.
+	*/
+	override def sortWith(p:(Row, Row)=>Boolean):Table =
+	{
+		val arrangement:Seq[Int] = this
+			.zipWithIndex
+			.sortWith{(a, b)=> p(a._1, b._1)}
+			.map(_._2)
+		RearrangedTable(this, arrangement)		
+	}
 
 
 	/**
@@ -290,6 +337,26 @@ trait Table extends scala.collection.immutable.Seq[Row]
 		
 		// Returns with result		
 		math.max(anyLen, columns(columnIndex).toString.length)
+	}
+
+
+	/**
+	* Checks column name
+	*/
+	private def checkColumn(column:String):Unit =
+	{
+		if(!columns.contains(column))
+			throw InvalidColumnNameException(column)
+	}
+
+
+	/**
+	* Checks colummn names
+	*/
+	private def checkColumns(columns:Seq[String]):Unit =
+	{
+		for(column:String <- columns)
+			checkColumn(column)
 	}
 }
 
