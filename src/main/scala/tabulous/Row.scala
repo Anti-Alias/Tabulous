@@ -77,5 +77,5 @@ trait Row extends Seq[Any]
 
 	override def toString:String = this
 		.map{any => any.toString}
-		.mkString("")
+		.mkString(",")
 }

@@ -83,7 +83,7 @@ trait Table extends scala.collection.immutable.Seq[Row]
 	* @return Table such that the columns excluding the ones specified
 	* are selected.
 	*/
-	def withouti(columnIndices: Int*):Table =
+	def deselecti(columnIndices: Int*):Table =
 	{
 		val selected:Seq[Int] = (0 until numColumns) filterNot{columnIndices.contains}
 		selecti(selected:_*)
@@ -94,11 +94,11 @@ trait Table extends scala.collection.immutable.Seq[Row]
 	* @return Table such that the columns excluding the ones specified
 	* are selected.
 	*/
-	def without(columns: String*):Table =
+	def deselect(deselected: String*):Table =
 	{
 		checkColumns(columns)
-		val indices:Seq[Int] = columns map {column => columns.indexOf(column)}
-		withouti(indices:_*)
+		val indices:Seq[Int] = deselected map {column => columns.indexOf(column)}
+		deselecti(indices:_*)
 	}
 
 
@@ -124,8 +124,23 @@ trait Table extends scala.collection.immutable.Seq[Row]
 
 	/**
 	* @return region of the Table specified.
+	* @param start Row index to start at.
+	* @param count Number of rows to consume.
 	*/
 	def region(start:Int, count:Int):Table = RegionTable(this, start, count)
+
+	/**
+	* @return region of the Table specified.
+	* Consumes all at and after start.
+	* @param start Row index to start at.
+	*/
+	def region(start:Int):Table = region(start, numRows-start)
+
+	/**
+	* Partitions this Table into two halves based
+	* on Row index.
+	*/
+	override def splitAt(rowIndex:Int):(Table, Table) = (region(0, rowIndex), region(rowIndex))
 
 
 	/**
@@ -266,12 +281,11 @@ trait Table extends scala.collection.immutable.Seq[Row]
 		{
 			val row:Row = apply(rowIndex)
 			val thatRowIndex:Int = that.indexWhere{thatRow:Row => thatRow(column) == row(column)}
-			println(rowIndex, thatRowIndex)
 			thatRowIndex
 		}
 
 		// Returns JoinedTable
-		JoinedTable(this, that.without(column), joins)
+		JoinedTable(this, that.deselect(column), joins)
 	}
 
 
@@ -350,9 +364,9 @@ trait Table extends scala.collection.immutable.Seq[Row]
 		val anys:Seq[Any] = (0 until numRows) map {rowIndex => apply(rowIndex, columnIndex)}
 		
 		// Finds longest String		
-		val anyLen:Int = anys
+		val asInts:Seq[Int] = anys
 			.map{any => any.toString.length}
-			.max
+		val anyLen:Int = if(asInts.size == 0) 0 else asInts.max
 		
 		// Returns with result		
 		math.max(anyLen, columns(columnIndex).toString.length)
