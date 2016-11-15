@@ -1,6 +1,6 @@
 package tabulous
 import scala.io.{Source}
-import java.io.{File}
+import java.io.{File, InputStream, OutputStream, BufferedOutputStream, FileOutputStream}
 import java.net.{URL}
 
 
@@ -357,6 +357,91 @@ trait Table extends scala.collection.immutable.Seq[Row]
 		// Returns with result		
 		math.max(anyLen, columns(columnIndex).toString.length)
 	}
+
+
+	/**
+	* Converts this Table to an InputStream that can be read from.
+	*/
+	def toInputStream:InputStream = new InputStream
+	{
+		var rowIndex:Int = -1
+		var charIndex:Int = 0
+		var line:String = null
+
+		override def read:Int =
+		{
+			// Validates line
+			if(line == null)
+			{
+				if(rowIndex == -1) line = loadHeader() + "\n"
+				else if(rowIndex < numRows) line = loadNextLine + "\n"
+				else line = null
+				charIndex = 0
+				rowIndex += 1
+			}
+
+			// Interprets line, or returns -1
+			if(line != null)
+			{
+				val c:Char = line.charAt(charIndex)
+				charIndex += 1
+				if(charIndex >= line.length) line = null
+				c.toInt
+			}
+			else  -1
+		}
+
+		def loadHeader():String = String.join(",", columns:_*)
+		def loadNextLine():String = apply(rowIndex).mkString(",")
+	}
+
+
+	/**
+	* @return This Table as a CSV String.
+	*/
+	def toCSVString:String =
+	{
+		val buffer = new StringBuffer()
+		val in:InputStream = toInputStream
+		var b:Int = in.read
+		while(b != -1)
+		{
+			buffer.append(b.toChar)
+			b = in.read
+		}
+		in.close
+		buffer.toString
+	}
+
+	/**
+	* Writes contents of this Table as a CSV to the
+	* supplied OutputStream
+	*/
+	def writeTo(out:OutputStream)
+	{
+		val in = toInputStream
+		var b:Int = in.read
+		while(b != -1)
+		{
+			out.write(b)
+			b = in.read
+		}
+		in.close
+		out.close
+	}
+
+
+	/**
+	* Writes contents of this Table as a CSV to the
+	* supplied File
+	*/
+	def writeTo(file:File):Unit = writeTo(new BufferedOutputStream(new FileOutputStream(file)))
+
+	/**
+	* Writes contents of this Table as a CSV to the
+	* supplied File
+	*/
+	def writeToFile(fileName:String):Unit = writeTo(new File(fileName))
 
 
 	/**

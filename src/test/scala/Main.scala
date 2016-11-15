@@ -1,4 +1,5 @@
 import tabulous._
+import java.io.{InputStream, FileOutputStream, BufferedOutputStream}
 
 
 
@@ -10,6 +11,8 @@ object Main extends App
 	// Transformation funcs
 	val toUpperCase = (any:Any) => any.toString.toUpperCase
 	val toInt = (any:Any) => any.toString.toInt
+
+	// Transformations that should be made to the pokemon table.
 	val transformations = Map(
 		"id" -> toInt,
 		"identifier" -> toUpperCase,
@@ -29,10 +32,11 @@ object Main extends App
 	println("Finding Gs")
 	val startsWithG:Table = pokemon
 		.where{row => row("species").toString.startsWith("G")}
-		.sortWith{(r1:Row, r2:Row) => (r1("species").toString compareTo r2("species").toString) < 0}
+		.sortWith{(r1:Row, r2:Row) => r1("species").toString < r2("species").toString}
 		.compile
 
 	// Outputs tables
 	println(startsWithG)
-	println(startsWithG(0, 0).getClass)
+	println(startsWithG.toCSVString)
+	startsWithG.writeToFile("out.csv")
 }
