@@ -417,7 +417,7 @@ trait Table extends scala.collection.immutable.Seq[Row]
 	* Writes contents of this Table as a CSV to the
 	* supplied OutputStream
 	*/
-	def writeTo(out:OutputStream)
+	def writeToStream(out:OutputStream)
 	{
 		val in = toInputStream
 		var b:Int = in.read
@@ -435,13 +435,13 @@ trait Table extends scala.collection.immutable.Seq[Row]
 	* Writes contents of this Table as a CSV to the
 	* supplied File
 	*/
-	def writeTo(file:File):Unit = writeTo(new BufferedOutputStream(new FileOutputStream(file)))
+	def writeToFile(file:File):Unit = writeToStream(new BufferedOutputStream(new FileOutputStream(file)))
 
 	/**
 	* Writes contents of this Table as a CSV to the
 	* supplied File
 	*/
-	def writeToFile(fileName:String):Unit = writeTo(new File(fileName))
+	def writeToFile(fileName:String):Unit = writeToFile(new File(fileName))
 
 
 	/**
@@ -476,9 +476,15 @@ object Table
 	/**
 	* Gets a Table from a URL
 	*/
-	def fromURL(url:URL):Table =
+	def fromURL(url:URL):Table = fromInputStream(url.openStream)
+
+
+	/**
+	* Gets a Table from an InputStream
+	*/
+	def fromInputStream(in:InputStream):Table =
 	{
-		val lines:Iterator[String] = Source.fromURL(url).getLines
+		val lines:Iterator[String] = Source.fromInputStream(in).getLines
 		val columns:Array[String] = lines.next.split(",")
 		val data:Array[String] = lines
 			.flatMap{_.split(",")}

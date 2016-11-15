@@ -62,7 +62,7 @@ class BasicTests extends FunSuite
 }
 
 
-// Contains utility functions for testing
+// Contains utility methods
 object TestUtil
 {
 	def isUpperCase(str:String):Boolean = !containsLowerCase(str)

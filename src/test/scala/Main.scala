@@ -37,6 +37,4 @@ object Main extends App
 
 	// Outputs tables
 	println(startsWithG)
-	println(startsWithG.toCSVString)
-	startsWithG.writeToFile("out.csv")
 }
