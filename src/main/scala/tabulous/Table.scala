@@ -127,20 +127,34 @@ trait Table extends scala.collection.immutable.Seq[Row]
 	* @param start Row index to start at.
 	* @param count Number of rows to consume.
 	*/
-	def region(start:Int, count:Int):Table = RegionTable(this, start, count)
+	override def slice(start:Int, count:Int):Table = RegionTable(this, start, count)
+	override def sliding(cnt:Int, step:Int) = new Iterator[Table]
+	{
+		var rowIndex:Int = 0
+		override def hasNext:Boolean = rowIndex < numRows
+		override def next:Table =
+		{
+			val toTake:Int = math.max(cnt, numRows-rowIndex)
+			val nextTable:Table = Table.this.slice(rowIndex, toTake)
+			rowIndex += step
+			nextTable
+		}
+	}
+	override def sliding(cnt:Int):Iterator[Table] = sliding(cnt, cnt)
 
 	/**
 	* @return region of the Table specified.
 	* Consumes all at and after start.
 	* @param start Row index to start at.
 	*/
-	def region(start:Int):Table = region(start, numRows-start)
+	def slice(start:Int):Table = slice(start, numRows-start)
 
 	/**
 	* Partitions this Table into two halves based
 	* on Row index.
 	*/
-	override def splitAt(rowIndex:Int):(Table, Table) = (region(0, rowIndex), region(rowIndex))
+	override def splitAt(rowIndex:Int):(Table, Table) = (slice(0, rowIndex), slice
+(rowIndex))
 
 
 	/**

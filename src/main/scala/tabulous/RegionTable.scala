@@ -16,11 +16,11 @@ private[tabulous] case class RegionTable(underlying:Table, start:Int, count:Int)
 	override def apply(rowIndex:Int, columnIndex:Int) = underlying.apply(rowIndex+start, columnIndex)
 
 	/**
-	* Optimized for iterating over chunks.
+	* Optimized for iteration.
 	*/
-	override def region(start:Int, count:Int):Table = underlying match
+	override def slice(start:Int, count:Int):Table = underlying match
 	{
-		case same:RegionTable => same.region(this.start + start, count)
-		case _ => super.region(start, count)
+		case same:RegionTable => same.slice(this.start + start, count)
+		case _ => super.slice(start, count)
 	}
 }
