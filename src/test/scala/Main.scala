@@ -49,7 +49,7 @@ object Main extends App
 		Pokemon(species, hp, attack, defense, sAttack, sDefense, speed)
 	}).toList
 
-	println(toPokemon)
+	println(toPokemon(query))
 }
 
 case class Pokemon(name:String, hp:Int, attack:Int, defense:Int, sAttack:Int, sDefense:Int, speed:Int)

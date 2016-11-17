@@ -6,5 +6,4 @@ version := "0.1.0"
 
 scalaVersion := "2.11.8"
 
-libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.0"
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
+publishTo := Some("Sonatype Snapshots Nexus" at "https://oss.sonatype.org/content/repositories/snapshots")
