@@ -49,12 +49,7 @@ object Main extends App
 		Pokemon(species, hp, attack, defense, sAttack, sDefense, speed)
 	}).toList
 
-	
-
-	// Outputs tables
-	val all:List[Pokemon] = toPokemon(query)
-	val raltsLine:List[Pokemon] = all.filter{poke:Pokemon => poke.name == "ralts" || poke.name == "kirlia" || poke.name == "gardevoir" || poke.name == "gallade"}
-	raltsLine foreach println
+	println(toPokemon)
 }
 
 case class Pokemon(name:String, hp:Int, attack:Int, defense:Int, sAttack:Int, sDefense:Int, speed:Int)
