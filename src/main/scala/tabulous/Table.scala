@@ -114,12 +114,49 @@ trait Table extends scala.collection.immutable.Seq[Row]
 		FilterTable(this, rowIndices:Seq[Int])
 	}
 
+
+	/**
+	* @param p Predicate Rows must not satisfy.
+	* @return a new Table such that each row
+	* satisifies the predicate 
+	*/
+	override def filterNot(p:Row=>Boolean):Table = filter{row => !p(row)}
+
+
 	/**
 	* @param p Predicate Rows must satisfy.
 	* @return a new Table such that each row
 	* satisifies the predicate 
 	*/
 	def where(p:Row=>Boolean):Table = filter(p)
+
+
+	/**
+	* @param coulumnIndex Column in question.
+	* @param cmp Vaue to compare column elements to.
+	*/
+	def whereEq(columnIndex:Int, cmp:Any):Table = where{row => row(columnIndex) == cmp}
+
+
+	/**
+	* @param coulumnIndex Column in question.
+	* @param cmp Vaue to compare column elements to.
+	*/
+	def whereEq(column:String, cmp:Any):Table = whereEq(columns.indexOf(column), cmp)
+
+
+	/**
+	* Difference of this table and another
+	*/
+	def diff(that:Table):Table =
+	{
+		// Compares schema
+		require(columns.toSeq == that.columns.toSeq, "Schema of tables did not match")
+
+		// Produces table.
+		val rows:Seq[Row] = this.filterNot{that.contains}
+		RowTable(columns, rows)
+	}
 
 
 	/**

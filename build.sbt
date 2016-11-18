@@ -1,6 +1,6 @@
 name := "Tabulous"
 
-organization := "com.github.anti-alias"
+organization := "tabulous"
 
 version := "0.1.0"
 
